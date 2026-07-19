@@ -19,5 +19,3 @@ set CLOUDFLARE_API_TOKEN=cfut_JRCapfEK9CRCtJcB4CSqPQ8lJnFVI652Naqgecv6ef71ca0e
 wrangler deploy
 ```
 
-## Пароль админки
-`admin123`
