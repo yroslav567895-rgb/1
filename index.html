@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ModerUtills — проверка HWID</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#080010;color:#cdd6e3;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem;position:relative;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 50% 50%,#1a0033 0%,#080010 70%);z-index:-2;animation:pulseBg 6s ease-in-out infinite alternate}
+body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 70% 20%,rgba(91,40,180,.08) 0%,transparent 50%),radial-gradient(ellipse at 30% 80%,rgba(120,50,200,.06) 0%,transparent 50%);z-index:-1;animation:pulseOverlay 8s ease-in-out infinite alternate}
+@keyframes pulseBg{0%{opacity:.6;transform:scale(1)}100%{opacity:1;transform:scale(1.08)}}
+@keyframes pulseOverlay{0%{opacity:.5}100%{opacity:1}}
+
+/* LOGIN SCREEN */
+#login-screen{background:rgba(18,10,30,.88);backdrop-filter:blur(12px);padding:2.5rem 3rem;border-radius:16px;text-align:center;max-width:420px;width:100%;border:1px solid rgba(91,40,180,.15);box-shadow:0 0 60px rgba(91,40,180,.08),0 8px 40px rgba(0,0,0,.5)}
+#login-screen .logo{font-size:1.6rem;font-weight:700;color:#c8b8f0;margin-bottom:.25rem;text-shadow:0 0 20px rgba(120,60,200,.3)}
+#login-screen .sub{color:#777;font-size:.85rem;margin-bottom:1.5rem}
+#login-screen label{display:block;font-size:.85rem;color:#999;margin-bottom:.4rem;text-align:left}
+#login-screen input{width:100%;padding:.7rem .9rem;border:1px solid rgba(91,40,180,.2);border-radius:10px;background:rgba(10,5,20,.6);color:#cdd6e3;font-size:.9rem;outline:none;text-align:center;font-family:monospace;transition:border-color .3s}
+#login-screen input:focus{border-color:#7b5cf8;box-shadow:0 0 15px rgba(91,40,180,.15)}
+#login-screen .info{font-size:.75rem;color:#555;margin-top:.5rem}
+#login-screen .err{color:#f87171;font-size:.82rem;margin-top:.7rem;min-height:1.4rem;line-height:1.4}
+#login-screen .support{font-size:.78rem;color:#555;margin-top:.8rem;line-height:1.5}
+#login-screen .support a{color:#7b5cf8;text-decoration:none}
+#login-screen .support a:hover{text-decoration:underline;color:#9b7cff}
+#login-screen button{width:100%;margin-top:.8rem;padding:.7rem;border:none;border-radius:10px;background:linear-gradient(135deg,#5b3cc8,#7b5cf8);color:#fff;font-size:.9rem;font-weight:600;cursor:pointer;transition:.3s;box-shadow:0 0 20px rgba(91,40,180,.2)}
+#login-screen button:hover{background:linear-gradient(135deg,#6b4cd8,#8b6cff);box-shadow:0 0 30px rgba(91,40,180,.35)}
+#login-screen button:disabled{opacity:.4;cursor:not-allowed;box-shadow:none}
+
+/* RESULT SCREEN */
+#result-screen{background:rgba(18,10,30,.88);backdrop-filter:blur(12px);border-radius:16px;padding:2.5rem 3rem;text-align:center;max-width:460px;width:100%;border:1px solid rgba(34,197,94,.15);box-shadow:0 0 60px rgba(34,197,94,.06),0 8px 40px rgba(0,0,0,.5)}
+#result-screen .icon{font-size:2.5rem;margin-bottom:.5rem}
+#result-screen h2{font-size:1.2rem;margin-bottom:.3rem}
+#result-screen .desc{color:#999;font-size:.85rem;margin-bottom:.8rem}
+#result-screen .key-box{background:rgba(10,5,20,.6);border:1px solid rgba(91,40,180,.2);border-radius:10px;padding:.8rem;font-family:monospace;font-size:1.1rem;color:#a5b4fc;margin:.5rem 0;letter-spacing:1px}
+#result-screen .key-box .label{font-size:.7rem;color:#666;display:block;margin-bottom:.3rem;letter-spacing:0}
+#result-screen .btn-copy{background:rgba(40,30,60,.6);border:1px solid rgba(91,40,180,.15);border-radius:8px;color:#cdd6e3;padding:.5rem 1.2rem;font-size:.82rem;cursor:pointer;transition:.3s;margin-top:.3rem}
+#result-screen .btn-copy:hover{background:#5b3cc8;border-color:#7b5cf8;color:#fff}
+#result-screen .btn-copy.copied{background:#22c55e;border-color:#22c55e;color:#fff}
+#result-screen .btn-copy:disabled{opacity:.4;cursor:not-allowed}
+#result-screen .btn-back{display:inline-block;margin-top:1rem;color:#7b5cf8;text-decoration:none;font-size:.82rem;cursor:pointer}
+#result-screen .btn-back:hover{text-decoration:underline;color:#9b7cff}
+
+/* ERROR SCREEN */
+#error-screen{background:rgba(18,10,30,.88);backdrop-filter:blur(12px);border-radius:16px;padding:2.5rem 3rem;text-align:center;max-width:460px;width:100%;border:1px solid rgba(239,68,68,.12);box-shadow:0 0 60px rgba(239,68,68,.05),0 8px 40px rgba(0,0,0,.5)}
+#error-screen .icon{font-size:3rem;margin-bottom:.5rem}
+#error-screen h2{font-size:1.2rem;color:#f87171;margin-bottom:.5rem}
+#error-screen .msg{font-size:.9rem;color:#cdd6e3;margin-bottom:.8rem;line-height:1.5}
+#error-screen .support{font-size:.82rem;color:#888;line-height:1.6}
+#error-screen .support a{color:#5b7cfa;text-decoration:none}
+#error-screen .support a:hover{text-decoration:underline}
+#error-screen .btn-back{display:inline-block;margin-top:1.2rem;color:#5b7cfa;text-decoration:none;font-size:.82rem;cursor:pointer}
+#error-screen .btn-back:hover{text-decoration:underline}
+
+/* CARDS */
+.card{background:rgba(22,22,34,.85);backdrop-filter:blur(8px);border-radius:14px;padding:1.2rem 1.5rem;margin-bottom:1rem;border:1px solid rgba(91,40,180,.12)}
+.card h2{font-size:1rem;font-weight:600;margin-bottom:.8rem;color:#e2e8f0}
+.admin-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid #1e1e2a}
+.admin-header h1{font-size:1.2rem;font-weight:600;color:#c8b8f0;text-shadow:0 0 20px rgba(120,60,200,.2)}
+.admin-header h1 span{color:#777;font-weight:400}
+.card{background:rgba(18,10,30,.88);backdrop-filter:blur(12px);border-radius:14px;padding:1.2rem 1.5rem;margin-bottom:1rem;border:1px solid rgba(91,40,180,.12)}
+.card h2{font-size:1rem;font-weight:600;margin-bottom:.8rem;color:#d8c8f0}
+.hidden{display:none!important}
+
+.add-form{display:flex;gap:.6rem;flex-wrap:wrap}
+.add-form input{flex:1;min-width:130px;padding:.6rem .8rem;border:1px solid rgba(91,40,180,.2);border-radius:10px;background:rgba(10,5,20,.6);color:#cdd6e3;font-size:.85rem;outline:none;transition:border-color .3s}
+.add-form input:focus{border-color:#7b5cf8;box-shadow:0 0 12px rgba(91,40,180,.12)}
+.add-form select{padding:.6rem .8rem;border:1px solid rgba(91,40,180,.2);border-radius:10px;background:rgba(10,5,20,.6);color:#cdd6e3;font-size:.85rem;outline:none;cursor:pointer}
+
+.btn{padding:.5rem 1rem;border:none;border-radius:8px;font-size:.8rem;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:.35rem;transition:.15s;color:#fff}
+.btn-add{background:linear-gradient(135deg,#5b3cc8,#7b5cf8);box-shadow:0 0 20px rgba(91,40,180,.15)}
+.btn-add:hover{background:linear-gradient(135deg,#6b4cd8,#8b6cff);box-shadow:0 0 30px rgba(91,40,180,.3)}
+.btn-sm{font-size:.72rem;padding:.3rem .55rem;border-radius:6px}
+.btn-ok{background:#22c55e}
+.btn-ok:hover{background:#16a34a}
+.btn-warn{background:#f59e0b}
+.btn-warn:hover{background:#d97706}
+.btn-danger{background:#ef4444}
+.btn-danger:hover{background:#dc2626}
+.btn-key{background:#2a2a38;color:#cdd6e3}
+.btn-key:hover{background:#3a3a4a}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.82rem}
+th{text-align:left;padding:.6rem .5rem;color:#888;font-weight:500;border-bottom:1px solid rgba(91,40,180,.12);white-space:nowrap}
+td{padding:.55rem .5rem;border-bottom:1px solid rgba(30,20,50,.4);white-space:nowrap}
+tr:hover td{background:rgba(91,40,180,.06)}
+.key-code{font-family:monospace;font-size:.78rem;color:#b8a8f0;background:rgba(91,40,180,.12);padding:.2rem .5rem;border-radius:5px}
+.hwid-cell code{font-size:.7rem;color:#888;word-break:break-all;max-width:130px;display:inline-block}
+.dim{color:#555;font-size:.78rem}
+.actions{display:flex;gap:.3rem;flex-wrap:nowrap}
+.badge{display:inline-flex;padding:.25rem .5rem;border-radius:20px;font-size:.72rem;font-weight:600;text-decoration:none}
+.badge-on{background:rgba(34,197,94,.15);color:#22c55e}
+.badge-off{background:rgba(239,68,68,.12);color:#ef4444}
+.empty-state{text-align:center;padding:2rem;color:#555;font-size:.85rem}
+.lnk{color:#7b5cf8;text-decoration:none;font-size:.82rem;cursor:pointer;transition:.3s}
+.lnk:hover{text-decoration:underline;color:#9b7cff}
+
+.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:rgba(18,10,30,.92);backdrop-filter:blur(12px);color:#cdd6e3;padding:.7rem 1.4rem;border-radius:10px;font-size:.85rem;border:1px solid rgba(91,40,180,.15);box-shadow:0 4px 20px rgba(0,0,0,.5);z-index:999;opacity:0;transition:.3s;pointer-events:none}
+.toast.show{opacity:1}
+
+.loader{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;margin-right:6px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media(max-width:640px){
+#login-screen{padding:1.8rem 1.5rem}
+#result-screen{padding:1.8rem 1.5rem}
+#error-screen{padding:1.8rem 1.5rem}
+.card{padding:1rem}
+.add-form input{min-width:100%}
+}
+</style>
+</head>
+<body>
+
+<!-- ========== HWID LOGIN ========== -->
+<div id="login-screen">
+  <div class="logo">ModerUtills</div>
+  <div class="sub">Введите HWID для проверки доступа</div>
+
+  <label>Ваш лицензионный ключ</label>
+  <input type="text" id="key-input" placeholder="MA-XXXXXXXX" autofocus spellcheck="false" style="text-transform:uppercase;letter-spacing:1px">
+  <div class="info">Ключ формата MA-XXXXXXXX</div>
+  <div class="err" id="login-err"></div>
+
+  <button id="check-btn">Проверить доступ</button>
+
+  <div class="support">
+    Нет доступа?<br>
+    <a href="https://vk.ru/a.ribin" target="_blank">vk.ru/a.ribin</a> &middot;
+    <a href="https://vk.ru/unluckperson" target="_blank">vk.ru/unluckperson</a>
+  </div>
+
+  <div style="margin-top:.8rem;font-size:.72rem;color:#333">
+    <a href="#" id="admin-link" style="color:rgba(123,92,248,.3);text-decoration:none;font-size:.75rem;transition:.3s" onmouseover="this.style.color='rgba(123,92,248,.7)'" onmouseout="this.style.color='rgba(123,92,248,.3)'">&#9881; Admin</a>
+  </div>
+</div>
+
+<!-- ========== RESULT (success) ========== -->
+<div id="result-screen" class="hidden">
+  <div class="icon">&#10004;&#65039;</div>
+  <h2 style="color:#22c55e">Доступ разрешён</h2>
+  <div class="desc" id="result-msg">Ваша лицензия активна</div>
+  <div class="key-box" style="background:rgba(10,5,20,.6);border:1px solid rgba(91,40,180,.2);border-radius:10px;padding:.8rem;margin:.5rem 0">
+    <div style="font-size:.72rem;color:#666;margin-bottom:.3rem">&#128161; Чтобы активировать в игре:</div>
+    <div style="font-size:.85rem;color:#cdd6e3;line-height:1.6">1. Запустите Minecraft<br>2. Нажмите <b>R</b> для открытия окна активации<br>3. Введите этот ключ: <b style="color:#a5b4fc;font-family:monospace" id="result-key"></b><br>4. HWID и ник привяжутся автоматически</div>
+  </div>
+  <div><a class="btn-back" id="back-from-result">&#8592; На главную</a></div>
+</div>
+
+<!-- ========== ERROR (invalid HWID) ========== -->
+<div id="error-screen" class="hidden">
+  <div class="icon">&#10060;</div>
+  <h2>Доступ запрещён</h2>
+  <div class="msg">Чё ты лиси, надо разрешение</div>
+  <div class="support">
+    Тех поддержка:<br>
+    <a href="https://vk.ru/a.ribin" target="_blank">vk.ru/a.ribin</a><br>
+    <a href="https://vk.ru/unluckperson" target="_blank">vk.ru/unluckperson</a>
+  </div>
+  <div><a class="btn-back" id="back-from-error">&#8592; Попробовать снова</a></div>
+</div>
+
+<!-- ========== ADMIN PANEL ========== -->
+<div id="admin-screen" class="hidden">
+  <div class="admin-header">
+    <h1>&#9881; ModerUtills <span>Admin Panel</span></h1>
+    <div>
+      <span id="conn-status" style="font-size:.72rem;color:#555;margin-right:.8rem"></span>
+      <button class="btn btn-sm btn-key" id="logout-admin-btn">На главную</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Сгенерировать ключ</h2>
+    <form class="add-form" id="add-form" autocomplete="off">
+      <input type="text" name="username" placeholder="Никнейм" required>
+      <input type="text" name="hwid" placeholder="HWID (опционально)" style="font-family:monospace">
+      <select name="sub">
+        <option value="1">Активна</option>
+        <option value="0">Неактивна</option>
+      </select>
+      <button type="submit" class="btn btn-add">Сгенерировать</button>
+    </form>
+    <div style="font-size:.72rem;color:#555;margin-top:.5rem">Ключ генерируется автоматически. HWID привяжется при первой активации в моде.</div>
+  </div>
+
+  <div class="card">
+    <h2>Пользователи <span id="user-count" style="color:#888;font-weight:400"></span></h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Никнейм</th>
+            <th>HWID</th>
+            <th>Ключ</th>
+            <th>Статус</th>
+            <th>Создан</th>
+            <th>Действия</th>
+          </tr>
+        </thead>
+        <tbody id="users-tbody"></tbody>
+      </table>
+    </div>
+    <div id="empty-state" class="empty-state hidden">Нет пользователей</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ========== CONFIG ==========
+// ЗДЕСЬ УКАЖИ URL СВОЕГО CLOUDFLARE WORKER ИЛИ PHP-БЭКЕНДА
+const API_URL = 'https://moderutills-license.moderutills-license.workers.dev/api';
+// ============================
+
+let adminPassword = 'admin123';
+
+function show(toastId) {
+  document.querySelectorAll('#login-screen,#result-screen,#error-screen,#admin-screen').forEach(el => el.classList.add('hidden'));
+  document.getElementById(toastId).classList.remove('hidden');
+}
+
+// ========== TOAST ==========
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.innerHTML = msg;
+  el.classList.add('show');
+  clearTimeout(el._timer);
+  el._timer = setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+// ========== ESCAPE ==========
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+// ========== KEY CHECK ==========
+document.getElementById('check-btn').addEventListener('click', checkKey);
+document.getElementById('key-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') checkKey();
+});
+
+async function checkKey() {
+  const key = document.getElementById('key-input').value.trim().toUpperCase();
+  const errEl = document.getElementById('login-err');
+  const btn = document.getElementById('check-btn');
+
+  if (!key) {
+    errEl.textContent = 'Введите лицензионный ключ';
+    return;
+  }
+
+  errEl.textContent = '';
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loader"></span> Проверка...';
+
+  try {
+    const resp = await fetch(API_URL + '/verify?key=' + encodeURIComponent(key));
+    const data = await resp.json();
+
+    if (data.success) {
+      document.getElementById('result-key').textContent = key;
+      document.getElementById('result-msg').textContent = data.message || 'Доступ разреш\u0451н';
+      show('result-screen');
+    } else {
+      show('error-screen');
+    }
+  } catch (e) {
+    show('error-screen');
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Проверить доступ';
+}
+
+// Back buttons
+document.getElementById('back-from-result').addEventListener('click', () => {
+  show('login-screen');
+  document.getElementById('hwid-input').value = '';
+  document.getElementById('login-err').textContent = '';
+});
+document.getElementById('back-from-error').addEventListener('click', () => {
+  show('login-screen');
+  document.getElementById('key-input').value = '';
+  document.getElementById('login-err').textContent = '';
+});
+
+// ========== ADMIN ==========
+document.getElementById('admin-link').addEventListener('click', e => {
+  e.preventDefault();
+  const pwd = prompt('Введите пароль администратора:');
+  if (pwd === adminPassword) {
+    show('admin-screen');
+    loadUsers();
+  } else if (pwd !== null) {
+    toast('Неверный пароль');
+  }
+});
+
+document.getElementById('logout-admin-btn').addEventListener('click', () => {
+  show('login-screen');
+  document.getElementById('key-input').value = '';
+  document.getElementById('login-err').textContent = '';
+});
+
+// Load users
+async function loadUsers() {
+  const tbody = document.getElementById('users-tbody');
+  const empty = document.getElementById('empty-state');
+  const count = document.getElementById('user-count');
+  const status = document.getElementById('conn-status');
+
+  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:1rem;color:#555"><span class="loader"></span> Загрузка...</td></tr>';
+
+  try {
+    const resp = await fetch(API_URL + '/admin?action=list');
+    const data = await resp.json();
+
+    if (!data.users || data.users.length === 0) {
+      tbody.innerHTML = '';
+      empty.classList.remove('hidden');
+      count.textContent = '(0)';
+      status.textContent = 'API: OK';
+      status.style.color = '#22c55e';
+      return;
+    }
+
+    empty.classList.add('hidden');
+    count.textContent = '(' + data.users.length + ')';
+    status.textContent = 'API: OK';
+    status.style.color = '#22c55e';
+
+    tbody.innerHTML = data.users.map(u => {
+      const active = u.subscription_active == 1 || u.subscription_active === true;
+      return `<tr>
+        <td class="dim">${u.id}</td>
+        <td><strong>${esc(u.username)}</strong></td>
+        <td class="hwid-cell">${u.hwid ? `<code>${esc(u.hwid)}</code>` : '<span class="dim">—</span>'}</td>
+        <td><code class="key-code">${esc(u.license_key || u.key || '')}</code></td>
+        <td><span class="badge ${active ? 'badge-on' : 'badge-off'}">${active ? 'Активна' : 'Отключена'}</span></td>
+        <td class="dim">${u.created_at || '—'}</td>
+        <td class="actions">
+          <a href="#" onclick="return toggleSub(${u.id})" class="btn btn-sm ${active ? 'btn-warn' : 'btn-ok'}">${active ? 'Выкл' : 'Вкл'}</a>
+          <a href="#" onclick="return regenKey(${u.id})" class="btn btn-sm btn-key">&#x21bb;</a>
+          <a href="#" onclick="return resetHwid(${u.id})" class="btn btn-sm btn-key">&#9887;</a>
+          <a href="#" onclick="return delUser(${u.id})" class="btn btn-sm btn-danger">&#10005;</a>
+        </td>
+      </tr>`;
+    }).join('');
+  } catch (e) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:1rem;color:#f87171">Ошибка соединения с API. Укажите правильный API_URL.</td></tr>';
+    status.textContent = 'API: OFFLINE';
+    status.style.color = '#ef4444';
+  }
+}
+
+// Admin actions
+async function apiCall(action, data) {
+  try {
+    const resp = await fetch(API_URL + '/admin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': adminPassword },
+      body: JSON.stringify({ action, ...data })
+    });
+    const result = await resp.json();
+    if (result.success) loadUsers();
+    return result;
+  } catch (e) {
+    toast('Ошибка API');
+    return null;
+  }
+}
+
+window.toggleSub = async function (id) {
+  await apiCall('toggle', { id });
+  return false;
+};
+window.regenKey = async function (id) {
+  await apiCall('regen', { id });
+  return false;
+};
+window.resetHwid = async function (id) {
+  await apiCall('resethwid', { id });
+  return false;
+};
+window.delUser = async function (id) {
+  if (!confirm('Удалить пользователя #' + id + '?')) return false;
+  await apiCall('delete', { id });
+  return false;
+};
+
+document.getElementById('add-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const username = fd.get('username').trim();
+  const hwid = fd.get('hwid').trim();
+  const sub = parseInt(fd.get('sub'));
+  if (!username) return;
+  const result = await apiCall('add', { username, hwid, subscription_active: sub });
+  if (result && result.user) {
+    toast('Ключ для <b>' + esc(username) + '</b>: <b>' + result.user.license_key + '</b>');
+  }
+  e.target.reset();
+});
+
+// ========== CHECK API ON LOAD ==========
+fetch(API_URL + '/verify?key=MA-PING')
+  .then(r => r.json())
+  .catch(() => {});
+</script>
+</body>
+</html>
