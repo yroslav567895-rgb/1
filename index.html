@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ModerUtills License Panel</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0e0e12;color:#cdd6e3;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center}
+.hidden{display:none!important}
+#login-screen{background:#16161e;padding:2.5rem 3rem;border-radius:16px;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,.5)}
+#login-screen h1{font-size:1.4rem;font-weight:600;margin-bottom:.5rem;color:#f0f4fa}
+#login-screen p{color:#888;font-size:.85rem;margin-bottom:1.5rem}
+#login-screen input{width:220px;padding:.7rem .9rem;border:1px solid #2a2a38;border-radius:10px;background:#0e0e14;color:#cdd6e3;font-size:.9rem;outline:none;text-align:center}
+#login-screen input:focus{border-color:#5b7cfa}
+#login-screen .err{color:#f87171;font-size:.8rem;margin-top:.6rem;min-height:1.2rem}
+#login-screen button{margin-top:1rem;padding:.65rem 2rem;border:none;border-radius:10px;background:#5b7cfa;color:#fff;font-size:.9rem;font-weight:600;cursor:pointer;transition:.2s}
+#login-screen button:hover{background:#4a6ae0}
+.dashboard{width:100%;max-width:1000px;padding:1.5rem;margin:0 auto}
+.dash-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid #1e1e2a}
+.dash-header h1{font-size:1.3rem;font-weight:600;color:#f0f4fa}
+.dash-header h1 span{color:#888;font-weight:400}
+.card{background:#16161e;border-radius:14px;padding:1.2rem 1.5rem;margin-bottom:1rem}
+.card h2{font-size:1rem;font-weight:600;margin-bottom:.8rem;color:#e2e8f0}
+.add-form{display:flex;gap:.6rem;flex-wrap:wrap}
+.add-form input{flex:1;min-width:140px;padding:.6rem .8rem;border:1px solid #2a2a38;border-radius:10px;background:#0e0e14;color:#cdd6e3;font-size:.85rem;outline:none}
+.add-form input:focus{border-color:#5b7cfa}
+.btn{padding:.55rem 1.1rem;border:none;border-radius:8px;font-size:.8rem;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:.35rem;transition:.15s;color:#fff}
+.btn-add{background:#5b7cfa}
+.btn-add:hover{background:#4a6ae0}
+.btn-logout{background:#2a2a38;color:#cdd6e3}
+.btn-logout:hover{background:#3a3a4a}
+.btn-sm{font-size:.72rem;padding:.35rem .6rem;border-radius:6px}
+.btn-ok{background:#22c55e}
+.btn-ok:hover{background:#16a34a}
+.btn-warn{background:#f59e0b}
+.btn-warn:hover{background:#d97706}
+.btn-danger{background:#ef4444}
+.btn-danger:hover{background:#dc2626}
+.btn-key{background:#2a2a38;color:#cdd6e3;font-size:.85rem}
+.btn-key:hover{background:#3a3a4a}
+.btn-copy{background:#2a2a38;color:#cdd6e3;font-size:.72rem;padding:.22rem .5rem;border-radius:4px;cursor:pointer;border:none;transition:.15s}
+.btn-copy:hover{background:#5b7cfa;color:#fff}
+.btn-copy.copied{background:#22c55e;color:#fff}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.82rem}
+th{text-align:left;padding:.6rem .5rem;color:#888;font-weight:500;border-bottom:1px solid #1e1e2a;white-space:nowrap}
+td{padding:.55rem .5rem;border-bottom:1px solid #181822;white-space:nowrap}
+tr:hover td{background:rgba(91,124,250,.04)}
+.key-code{font-family:'SF Mono',Consolas,monospace;font-size:.78rem;color:#a5b4fc;background:rgba(91,124,250,.08);padding:.2rem .5rem;border-radius:5px}
+.hwid-cell code{font-size:.7rem;color:#888;word-break:break-all;max-width:140px;display:inline-block}
+.dim{color:#555;font-size:.78rem}
+.actions{display:flex;gap:.3rem;flex-wrap:nowrap}
+.badge{display:inline-flex;align-items:center;gap:.35rem;padding:.25rem .55rem;border-radius:20px;font-size:.72rem;font-weight:600;text-decoration:none;transition:.15s}
+.badge-on{background:rgba(34,197,94,.15);color:#22c55e}
+.badge-off{background:rgba(239,68,68,.12);color:#ef4444}
+.badge-off:hover{background:rgba(34,197,94,.15);color:#22c55e}
+.badge-on:hover{background:rgba(239,68,68,.12);color:#ef4444}
+.empty-state{text-align:center;padding:2rem;color:#555;font-size:.85rem}
+.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:#1e1e2a;color:#cdd6e3;padding:.7rem 1.4rem;border-radius:10px;font-size:.85rem;box-shadow:0 4px 20px rgba(0,0,0,.5);z-index:999;opacity:0;transition:.3s;pointer-events:none}
+.toast.show{opacity:1}
+@media(max-width:640px){
+.dashboard{padding:.8rem}
+.card{padding:1rem}
+.add-form input{min-width:100%}
+.actions{gap:.2rem}
+.btn-sm{font-size:.65rem;padding:.25rem .45rem}
+}
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <h1>ModerUtills</h1>
+  <p>License Management Panel</p>
+  <input type="password" id="pass-input" placeholder="Пароль" autofocus>
+  <div class="err" id="pass-err"></div>
+  <button id="pass-btn">Войти</button>
+</div>
+
+<div id="dashboard" class="dashboard hidden">
+  <div class="dash-header">
+    <h1>&#9881; ModerUtills <span>License Panel</span></h1>
+    <button class="btn btn-logout" id="logout-btn">Выйти</button>
+  </div>
+
+  <div class="card">
+    <h2>Добавить пользователя</h2>
+    <form class="add-form" id="add-form" autocomplete="off">
+      <input type="text" name="username" placeholder="Никнейм" required>
+      <input type="text" name="hwid" placeholder="HWID (опционально)">
+      <button type="submit" class="btn btn-add">Добавить</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>Пользователи <span id="user-count" style="color:#888;font-weight:400"></span></h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Никнейм</th>
+            <th>HWID</th>
+            <th>Ключ</th>
+            <th>Статус</th>
+            <th>Создан</th>
+            <th>Действия</th>
+          </tr>
+        </thead>
+        <tbody id="users-tbody"></tbody>
+      </table>
+    </div>
+    <div id="empty-state" class="empty-state hidden">Нет пользователей</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const DB_KEY = 'moderutills_users';
+const PASS_KEY = 'moderutills_session';
+const CORRECT_PASS = 'admin123';
+
+function getUsers() {
+  try { return JSON.parse(localStorage.getItem(DB_KEY) || '[]'); } catch { return []; }
+}
+function saveUsers(users) {
+  localStorage.setItem(DB_KEY, JSON.stringify(users));
+}
+
+function genKey() {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let s = '';
+  for (let i = 0; i < 8; i++) s += chars[Math.floor(Math.random() * chars.length)];
+  return 'MA-' + s;
+}
+
+function now() {
+  return new Date().toISOString().replace('T', ' ').slice(0, 19);
+}
+
+function render() {
+  const users = getUsers();
+  const tbody = document.getElementById('users-tbody');
+  const empty = document.getElementById('empty-state');
+  const count = document.getElementById('user-count');
+
+  count.textContent = '(' + users.length + ')';
+
+  if (users.length === 0) {
+    tbody.innerHTML = '';
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+
+  tbody.innerHTML = users.map(u => {
+    const active = u.subscription_active;
+    return `<tr>
+      <td class="dim">${u.id}</td>
+      <td><strong>${esc(u.username)}</strong></td>
+      <td class="hwid-cell">${u.hwid ? `<code>${esc(u.hwid)}</code>` : '<span class="dim">—</span>'}</td>
+      <td><code class="key-code">${esc(u.license_key)}</code> <button class="btn-copy" onclick="copyKey('${esc(u.license_key)}',this)">copy</button></td>
+      <td><a href="#" onclick="return toggleSub(${u.id})" class="badge ${active ? 'badge-on' : 'badge-off'}">${active ? 'Активна' : 'Отключена'}</a></td>
+      <td class="dim">${u.created_at}</td>
+      <td class="actions">
+        <a href="#" onclick="return toggleSub(${u.id})" class="btn btn-sm ${active ? 'btn-warn' : 'btn-ok'}">${active ? 'Выкл' : 'Вкл'}</a>
+        <a href="#" onclick="return regenKey(${u.id})" class="btn btn-sm btn-key">&#x21bb;</a>
+        <a href="#" onclick="return resetHwid(${u.id})" class="btn btn-sm btn-key">&#9887;</a>
+        <a href="#" onclick="return delUser(${u.id})" class="btn btn-sm btn-danger">&#10005;</a>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function addUser(username, hwid) {
+  const users = getUsers();
+  const maxId = users.reduce((m, u) => Math.max(m, u.id), 0);
+  const key = genKey();
+  users.unshift({
+    id: maxId + 1,
+    username: username,
+    hwid: hwid || '',
+    license_key: key,
+    subscription_active: false,
+    created_at: now()
+  });
+  saveUsers(users);
+  render();
+  toast('Пользователь <b>' + esc(username) + '</b> добавлен');
+}
+
+function delUser(id) {
+  let users = getUsers();
+  const u = users.find(x => x.id === id);
+  if (!u || !confirm('Удалить пользователя ' + u.username + '?')) return false;
+  users = users.filter(x => x.id !== id);
+  saveUsers(users);
+  render();
+  toast('Пользователь <b>' + esc(u.username) + '</b> удалён');
+  return false;
+}
+
+function toggleSub(id) {
+  const users = getUsers();
+  const u = users.find(x => x.id === id);
+  if (!u) return false;
+  u.subscription_active = !u.subscription_active;
+  saveUsers(users);
+  render();
+  toast('Подписка ' + esc(u.username) + ': ' + (u.subscription_active ? 'включена' : 'отключена'));
+  return false;
+}
+
+function regenKey(id) {
+  const users = getUsers();
+  const u = users.find(x => x.id === id);
+  if (!u) return false;
+  u.license_key = genKey();
+  saveUsers(users);
+  render();
+  toast('Новый ключ для <b>' + esc(u.username) + '</b>: ' + u.license_key);
+  return false;
+}
+
+function resetHwid(id) {
+  const users = getUsers();
+  const u = users.find(x => x.id === id);
+  if (!u) return false;
+  u.hwid = '';
+  saveUsers(users);
+  render();
+  toast('HWID сброшен для <b>' + esc(u.username) + '</b>');
+  return false;
+}
+
+function copyKey(key, btn) {
+  navigator.clipboard.writeText(key).then(() => {
+    btn.textContent = 'OK';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 1500);
+  });
+}
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.innerHTML = msg;
+  el.classList.add('show');
+  clearTimeout(el._timer);
+  el._timer = setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+function checkPass() {
+  return sessionStorage.getItem(PASS_KEY) === CORRECT_PASS;
+}
+
+function showDash() {
+  document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('dashboard').classList.remove('hidden');
+  render();
+}
+
+document.getElementById('pass-btn').addEventListener('click', () => {
+  const val = document.getElementById('pass-input').value;
+  const err = document.getElementById('pass-err');
+  if (val === CORRECT_PASS) {
+    sessionStorage.setItem(PASS_KEY, CORRECT_PASS);
+    showDash();
+  } else {
+    err.textContent = 'Неверный пароль';
+    document.getElementById('pass-input').value = '';
+    document.getElementById('pass-input').focus();
+  }
+});
+
+document.getElementById('pass-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('pass-btn').click();
+});
+
+document.getElementById('logout-btn').addEventListener('click', () => {
+  sessionStorage.removeItem(PASS_KEY);
+  document.getElementById('dashboard').classList.add('hidden');
+  document.getElementById('login-screen').classList.remove('hidden');
+  document.getElementById('pass-input').value = '';
+  document.getElementById('pass-err').textContent = '';
+  document.getElementById('pass-input').focus();
+});
+
+document.getElementById('add-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const username = fd.get('username').trim();
+  const hwid = fd.get('hwid').trim();
+  if (!username) return;
+  addUser(username, hwid);
+  e.target.reset();
+  e.target.querySelector('[name="username"]').focus();
+});
+
+if (!checkPass()) {
+  document.getElementById('pass-input').focus();
+} else {
+  showDash();
+}
+</script>
+</body>
+</html>
