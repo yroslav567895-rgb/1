@@ -1,6 +1,0 @@
-@echo off
-echo Installing dependencies...
-call npm install
-echo Starting ModerUtills Website...
-npm start
-pause
