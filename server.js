@@ -19,6 +19,9 @@ const KEYS_FILE = path.join(DATA_DIR, 'keys.json');
 const SESSIONS_FILE = path.join(DATA_DIR, 'sessions.json');
 const ACTIVITY_FILE = path.join(DATA_DIR, 'activity.json');
 
+if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+if (!fs.existsSync(DOWNLOADS_DIR)) fs.mkdirSync(DOWNLOADS_DIR, { recursive: true });
+
 function readJSON(file, def) {
     try {
         if (!fs.existsSync(file)) { fs.writeFileSync(file, JSON.stringify(def, null, 2)); return def; }
